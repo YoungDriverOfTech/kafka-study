@@ -56,6 +56,24 @@ public class AdminSimple {
 
         // 7. 需改配置
 //        alterConfig();
+
+        // 8. 增加分区
+//        increasePartition(2);
+    }
+
+    /*
+     * 增加分区
+     * */
+    private static void increasePartition(int partitions) throws Exception {
+        AdminClient adminClient = adminClient();
+
+        // 制作参数
+        Map<String, NewPartitions> param = new HashMap<>();
+        NewPartitions newPartitions = NewPartitions.increaseTo(partitions);
+        param.put("first-topic", newPartitions);
+
+        // 调用API
+        adminClient.createPartitions(param);
     }
 
     /*
