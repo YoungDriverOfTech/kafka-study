@@ -5,6 +5,7 @@ import org.apache.kafka.clients.admin.*;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
 
 public class AdminSimple {
 
@@ -21,9 +22,25 @@ public class AdminSimple {
 //        createTopic();
 
         // 3. 获取topic名字
-        topicLists();
+//        topicLists();
+
+        // 4. 删除topic
+//        deleteTopic();
     }
 
+    /*
+    * 删除topic
+    * */
+    private static void deleteTopic() throws Exception {
+        AdminClient adminClient = adminClient();
+        DeleteTopicsResult deleteTopicsResult = adminClient.deleteTopics(List.of(TOPIC_NAME));
+        deleteTopicsResult.all().get();
+    }
+
+
+    /*
+    * kafka查找
+    * */
     public static void topicLists() throws Exception {
         AdminClient adminClient = adminClient();
 
