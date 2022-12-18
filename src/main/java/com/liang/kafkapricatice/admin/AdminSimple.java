@@ -3,6 +3,7 @@ package com.liang.kafkapricatice.admin;
 import org.apache.kafka.clients.admin.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
@@ -26,6 +27,26 @@ public class AdminSimple {
 
         // 4. 删除topic
 //        deleteTopic();
+
+        // 5. 描述topic
+        // {first-topic=
+        // (name=first-topic,
+        // internal=false,
+        // partitions=(partition=0, leader=ec2-35-73-156-207.ap-northeast-1.compute.amazonaws.com:9092 (id: 0 rack: null),
+        // replicas=ec2-35-73-156-207.ap-northeast-1.compute.amazonaws.com:9092 (id: 0 rack: null),
+        // isr=ec2-35-73-156-207.ap-northeast-1.compute.amazonaws.com:9092 (id: 0 rack: null)),
+        // authorizedOperations=[])}
+        describeTopic();
+    }
+
+    /*
+    * 描述topic
+    * */
+    private static void describeTopic() throws ExecutionException, InterruptedException {
+        AdminClient adminClient = adminClient();
+        DescribeTopicsResult describeTopicsResult = adminClient.describeTopics(List.of("first-topic"));
+        Map<String, TopicDescription> stringTopicDescriptionMap = describeTopicsResult.all().get();
+        System.out.println("stringTopicDescriptionMap = " + stringTopicDescriptionMap);
     }
 
     /*
