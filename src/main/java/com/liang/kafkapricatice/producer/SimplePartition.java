@@ -19,7 +19,7 @@ public class SimplePartition implements Partitioner {
         * key-3
         * */
         String keyStr = key + "";
-        String keyInt = keyStr.substring(3);
+        String keyInt = keyStr.substring(4);
 
         // 使用除2取余数来决定消息进入哪个partition
         int i = Integer.parseInt(keyInt);
