@@ -3,15 +3,14 @@ package com.liang.kafkapricatice.questionnaire.utils;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.Reader;
-import java.util.Optional;
 import lombok.Cleanup;
 import lombok.extern.slf4j.Slf4j;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.Optional;
 
 /**
  * @description : 文件工具类
@@ -26,7 +25,7 @@ public class FileUtils {
     );
 
     String lineStr = "";
-    StringBuffer stringBuffer = new StringBuffer();
+    StringBuilder stringBuffer = new StringBuilder();
     while ((lineStr = reader.readLine()) != null) {
       stringBuffer.append(lineStr);
     }
