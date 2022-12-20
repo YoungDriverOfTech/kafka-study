@@ -1,0 +1,24 @@
+[
+  {
+    "questionId": "1",
+    "question": "今天几号",
+    "answer": "",
+    "options": [
+      {"label": "1号", "value": "A"},
+      {"label": "2号", "value": "B"},
+      {"label": "3号", "value": "C"},
+      {"label": "4号", "value": "D"}
+    ]
+  },
+  {
+    "questionId": "2",
+    "question": "喜欢的颜色",
+    "answer": "",
+    "options": [
+      {"label": "红", "value": "A"},
+      {"label": "黄", "value": "B"},
+      {"label": "绿", "value": "C"},
+      {"label": "蓝", "value": "D"}
+    ]
+  }
+]
