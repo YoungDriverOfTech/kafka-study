@@ -45,7 +45,6 @@ public class QuestionnaireServiceImpl implements QuestionnaireService{
         *    2.1 可以根据key完成partition的负载均衡
         *    2.2 合理的key设计可以让Flink, Spark streaming 的实时分析工具做更快速处理
         * 3. Ack=all，kafka层面上就已经有了只有一次的消息投递保障，但是如果想要不丢数据，最好自行处理异常
-        *
         * */
         // send to kafka
         try {
