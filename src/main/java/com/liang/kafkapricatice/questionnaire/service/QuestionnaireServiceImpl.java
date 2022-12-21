@@ -48,7 +48,11 @@ public class QuestionnaireServiceImpl implements QuestionnaireService{
         *
         * */
         // send to kafka
-        producer.send(record);
+        try {
+            producer.send(record);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
