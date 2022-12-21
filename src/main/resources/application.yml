@@ -7,3 +7,8 @@ template:
     - {"templateId" : "2", "templateFilePath" : "/Users/liangxiaole/Desktop/ITLearning/java/kafka-study/src/main/resources/template/template.json", "active" : false}
   template-result-type: 0 # 0-get file  1-get from db  2-es
   template-result-file-path: "/Users/liangxiaole/Desktop/ITLearning/java/kafka-study/src/main/resources/template/templateResult.json"
+
+questionnaire:
+  kafka:
+    bootstrap_servers: "ec2-35-73-156-207.ap-northeast-1.compute.amazonaws.com:9092"
+    acks_config: "all"
