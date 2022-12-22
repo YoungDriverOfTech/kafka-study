@@ -3,9 +3,13 @@ package com.liang.kafkapricatice.consumer;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.apache.kafka.clients.consumer.OffsetAndMetadata;
+import org.apache.kafka.common.TopicPartition;
 
 import java.time.Duration;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 public class ConsumerSample {
@@ -19,6 +23,9 @@ public class ConsumerSample {
 
         // 2. 手动提交
         commitOffsetManually();
+
+        // 3. 手动提交offset,并且手动控制partition
+        commitOffWithPartition();
 
     }
 
@@ -72,8 +79,47 @@ public class ConsumerSample {
                 // 如果失败则回滚，不要提交offset
             }
 
-            // 手动通知offSet提交
+            // 手动通知offSet提交，如果没提交，则消息还是存在kafka中。
             consumer.commitAsync();
+        }
+    }
+
+    /*
+     * 手动提交offset,并且手动控制partition
+     * */
+    private static void commitOffWithPartition() {
+        Properties props = new Properties();
+        props.setProperty("bootstrap.servers", "ec2-35-73-156-207.ap-northeast-1.compute.amazonaws.com:9092");
+        props.setProperty("group.id", "test");
+        props.setProperty("enable.auto.commit", "false"); // 关闭自动提交
+        props.setProperty("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
+        props.setProperty("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
+
+        KafkaConsumer<String, String> consumer = new KafkaConsumer<>(props);
+        // 订阅哪个topic
+        consumer.subscribe(List.of(TOPIC_NAME));
+
+        while (true) {
+            // 没间隔100毫秒去kafka拉取记录
+            ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(100));
+
+            // 每个partition单独处理
+            for(TopicPartition partition : records.partitions()) {
+
+                // 单独拿出某个partition的所有数据，然后处理他们。
+                List<ConsumerRecord<String, String>> pRecord = records.records(partition);
+                for (ConsumerRecord<String, String> record : pRecord) {
+                    // todo 逻辑代码
+                }
+
+                // 单独针对指定的offset做提交
+                long lastOffset = pRecord.get(pRecord.size() - 1).offset();
+                Map<TopicPartition, OffsetAndMetadata> offset = new HashMap<>();
+
+                // 下一次消费服务器消息的时候，是这一次消费的最后的位置的下一个位置，所以需要+1
+                offset.put(partition, new OffsetAndMetadata(lastOffset + 1));
+                consumer.commitSync(offset);
+            }
         }
     }
 }
