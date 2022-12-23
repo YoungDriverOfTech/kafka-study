@@ -26,7 +26,6 @@ public class ConsumerSample {
 
         // 3. 手动提交offset,并且手动控制partition
         commitOffWithPartition();
-
     }
 
     /*
