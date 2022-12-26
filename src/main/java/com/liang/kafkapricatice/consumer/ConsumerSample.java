@@ -7,10 +7,7 @@ import org.apache.kafka.clients.consumer.OffsetAndMetadata;
 import org.apache.kafka.common.TopicPartition;
 
 import java.time.Duration;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 
 public class ConsumerSample {
 
@@ -31,7 +28,9 @@ public class ConsumerSample {
         commitOffWithPartition2();
 
         // 5. 手动控制offset
-        controlOffset();
+
+        // 6. 流量控制
+        controlPause();
     }
 
     /*
@@ -220,6 +219,67 @@ public class ConsumerSample {
                 // 下一次消费服务器消息的时候，是这一次消费的最后的位置的下一个位置，所以需要+1
                 offset.put(partition, new OffsetAndMetadata(lastOffset + 1));
                 consumer.commitSync(offset);
+            }
+        }
+    }
+
+    /*
+    流量控制 - 限流
+     */
+    private static void controlPause() {
+        Properties props = new Properties();
+        props.setProperty("bootstrap.servers", "ec2-35-73-156-207.ap-northeast-1.compute.amazonaws.com:9092");
+        props.setProperty("group.id", "test");
+        props.setProperty("enable.auto.commit", "false");
+        props.setProperty("auto.commit.interval.ms", "1000");
+        props.setProperty("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
+        props.setProperty("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
+
+        KafkaConsumer<String, String> consumer = new KafkaConsumer(props);
+
+        // jiangzh-topic - 0,1两个partition
+        TopicPartition p0 = new TopicPartition(TOPIC_NAME, 0);
+        TopicPartition p1 = new TopicPartition(TOPIC_NAME, 1);
+
+        // 消费订阅某个Topic的某个分区
+        consumer.assign(Arrays.asList(p0,p1));
+        long totalNum = 40;
+        while (true) {
+            ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(10000));
+            // 每个partition单独处理
+            for(TopicPartition partition : records.partitions()){
+                List<ConsumerRecord<String, String>> pRecord = records.records(partition);
+                long num = 0;
+                for (ConsumerRecord<String, String> record : pRecord) {
+                    System.out.printf("patition = %d , offset = %d, key = %s, value = %s%n",
+                            record.partition(), record.offset(), record.key(), record.value());
+                    /*
+                        1、接收到record信息以后，去令牌桶中拿取令牌
+                        2、如果获取到令牌，则继续业务处理
+                        3、如果获取不到令牌， 则pause等待令牌
+                        4、当令牌桶中的令牌足够， 则将consumer置为resume状态
+                     */
+                    num++;
+                    if(record.partition() == 0){
+                        if(num >= totalNum){
+                            consumer.pause(List.of(p0));
+                        }
+                    }
+
+                    if(record.partition() == 1){
+                        if(num == 40){
+                            consumer.resume(List.of(p0));
+                        }
+                    }
+                }
+
+                long lastOffset = pRecord.get(pRecord.size() -1).offset();
+                // 单个partition中的offset，并且进行提交
+                Map<TopicPartition, OffsetAndMetadata> offset = new HashMap<>();
+                offset.put(partition,new OffsetAndMetadata(lastOffset+1));
+                // 提交offset
+                consumer.commitSync(offset);
+                System.out.println("=============partition - "+ partition +" end================");
             }
         }
     }
