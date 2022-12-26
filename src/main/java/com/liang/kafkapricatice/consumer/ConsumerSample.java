@@ -148,9 +148,6 @@ public class ConsumerSample {
         // 订阅某个topic的某个分区
         consumer.assign(List.of(p0));
 
-        // 订阅哪个topic
-//        consumer.subscribe(List.of(TOPIC_NAME));
-
         while (true) {
             // 没间隔100毫秒去kafka拉取记录
             ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(100));
